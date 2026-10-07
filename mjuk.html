@@ -183,7 +183,7 @@ function renderStart(){
         ? `Three or more of you? <button type="button" class="linkish" id="mode">Switch to the group version</button>`
         : `Only two of you? <button type="button" class="linkish" id="mode">Switch to the two-player version</button>`}</p>` : ""}
     <p class="muted small" style="margin-top:2rem">${esc(S.disclaimer)}</p>
-    ${S.teacher_url ? `<p class="small"><a href="${esc(S.teacher_url)}" target="_blank" rel="noopener">Teacher? Open the teacher tool</a> (password needed)</p>` : ""}
+    ${S.teacher_url ? `<p class="small"><a href="${esc(S.teacher_url.replace(/\/?$/, "/") + "?sim=" + encodeURIComponent(S.id))}" target="_blank" rel="noopener">Teacher? Open the teacher tool</a> (password needed)</p>` : ""}
   </div>`;
   const m = $("#mode");
   if (m) m.onclick = () => { st.mode = two ? "3" : "2"; st.role = null; save(); renderStart(); };

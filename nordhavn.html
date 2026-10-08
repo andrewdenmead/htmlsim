@@ -114,6 +114,7 @@ legend{font-weight:600;margin-bottom:.5rem}
 .dec textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px}
 .flash{border:2px solid var(--amber);border-radius:12px;padding:14px 16px;margin-top:22px;background:var(--amber-bg)}
 .flash .prose{white-space:pre-line}
+.cite{font-size:.9rem;color:var(--ink-2);border-left:3px solid var(--line);padding:2px 0 2px 10px;margin:12px 0 0}
 
 /* listening */
 .mcq{margin:14px 0;padding-bottom:10px;border-bottom:1px solid var(--line)}
@@ -203,7 +204,7 @@ function renderStart(){
   <header class="bar">${topBar("")}</header>
   <div class="wrap start">
     <h1>${esc(S.title)}</h1>
-    <p class="lede">You work at ${esc(S.org)}. Your ${two ? "team of two" : "group"} has to make ${num(S.decisions.length)} decisions — and each of you holds information the other${two ? "" : "s"} ${two ? "doesn't" : "don't"} have.</p>
+    <p class="lede">You work for ${esc(S.org)}. Your ${two ? "team of two" : "group"} has to make ${num(S.decisions.length)} decisions — and each of you holds information the other${two ? "" : "s"} ${two ? "doesn't" : "don't"} have.</p>
     <form id="startForm">
       <fieldset><legend>${two ? "Which player are you?" : "Your role"}</legend>
         <p class="muted small">${two ? "Decide between you who is Player 1 and who is Player 2." : "Agree in your group who takes which role. If there are more than three of you, two people can share a role."}</p>
@@ -232,9 +233,11 @@ function renderStart(){
 }
 
 /* ---------- main shell ---------- */
-const TABS = [["context","Context"],["firstlook","First look"],["listening","Listening"],["inbox","Inbox"],["decisions","Decisions"],["submit","Write & submit"]];
+const ALL_TABS = [["context","Context"],["firstlook","First look"],["listening","Listening"],["inbox","Inbox"],["decisions","Decisions"],["submit","Write & submit"]];
+const TABS = ALL_TABS.filter(([k]) => k !== "listening" || (S.listening && S.listening.questions && S.listening.questions.length));
 function render(){
   if (!st.role) return renderStart();
+  if (!TABS.some(([k]) => k === st.tab)) st.tab = "context";
   const r = role();
   const pending = r.characters.filter(c => !st.choices[c.id]).length;
   $("#app").innerHTML = `
@@ -320,6 +323,10 @@ function tabInbox(){
     ${r.characters.map(c => mailHTML(c)).join("")}`;
   r.characters.forEach(c => wireMail(c));
 }
+function callName(n){   // "Dr. Elena Whitfield" -> "Dr. Whitfield"; "Freja Lund" -> "Freja"
+  const m = n.match(/^(Dr\.?|Prof\.?|Professor)\s+.*\s(\S+)$/);
+  return m ? `${m[1]} ${m[2]}` : n.split(" ")[0];
+}
 function mailHTML(c){
   const chosen = st.choices[c.id];
   const open = !chosen;
@@ -332,7 +339,7 @@ function mailHTML(c){
       </div>`;
   } else {
     const pick = pendingPick[c.id];
-    offers = `<div class="offers"><p class="ask">${esc(c.name.split(" ")[0])} can tell you one more thing. Which do you want to know?</p>
+    offers = `<div class="offers"><p class="ask">${esc(callName(c.name))} can tell you one more thing. Which do you want to know?</p>
       ${c.offers.map(o => `<button type="button" class="offer" data-c="${c.id}" data-o="${o.id}" aria-pressed="${pick===o.id}">${esc(o.title)}</button>`).join("")}
       ${pick ? `<div class="confirm"><button type="button" class="btn" data-confirm="${c.id}">Ask about this</button><span class="muted small">You can't change this afterwards.</span></div>` : ""}
     </div>`;
@@ -340,7 +347,7 @@ function mailHTML(c){
   return `<details class="mail" id="m_${c.id}" ${open || st.tab==="inbox" ? "open" : ""}>
     <summary><span><span class="from">${esc(c.name)}</span>, <span class="muted">${esc(c.title)}</span><br><span class="subj">${esc(c.subject)}</span></span>
       <span class="state ${chosen?"":"todo"}">${chosen ? "Answered" : "Choose one"}</span></summary>
-    <div class="body"><div class="prose">${esc(c.email)}</div>${offers}</div></details>`;
+    <div class="body"><div class="prose">${esc(c.email)}</div>${c.citation ? `<p class="cite"><b>Reference:</b> ${esc(c.citation)}</p>` : ""}${offers}</div></details>`;
 }
 function wireMail(c){
   const box = $("#m_" + c.id);
@@ -365,7 +372,7 @@ function tabDecisions(){
         <label class="small muted" for="hw_${d.id}">However… (the main risk or objection)</label>
         <textarea id="hw_${d.id}" data-hw="${d.id}">${esc(st.however[d.id]||"")}</textarea>
       </div>`).join("")}
-    ${all ? `<div class="flash"><b>Breaking news</b><div class="prose">${esc(unscramble(S.newsflash, `${S.salt}|newsflash`)).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}</div></div>`
+    ${!S.newsflash ? "" : all ? `<div class="flash"><b>Breaking news</b><div class="prose">${esc(unscramble(S.newsflash, `${S.salt}|newsflash`)).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}</div></div>`
           : `<p class="muted small">When you've chosen all ${num(S.decisions.length)}, some breaking news will appear here.</p>`}`;
   $("#main").onchange = e => { if (e.target.name && e.target.name.startsWith("dec_")) { st.decisions[e.target.name.slice(4)] = e.target.value; save(); render(); } };
   $("#main").oninput = e => { if (e.target.dataset.hw) { st.however[e.target.dataset.hw] = e.target.value; save(); } };

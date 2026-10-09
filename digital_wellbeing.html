@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
 <title>The Digital Wellbeing Inquiry — SimLearn</title>
 <style>
@@ -15,7 +15,7 @@
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--sans)}
-.wrap{max-width:720px;margin:0 auto;padding:0 16px}
+.wrap{max-width:720px;margin:0 auto;padding:0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left))}
 h1{font:600 1.55rem/1.2 var(--sans);margin:0 0 .25rem}
 h2{font:600 1.2rem/1.3 var(--sans);margin:1.75rem 0 .5rem}
 h3{font:600 1rem/1.35 var(--sans);margin:1.25rem 0 .35rem}
@@ -137,6 +137,54 @@ textarea.memo{width:100%;min-height:340px;border:1px solid var(--line);border-ra
 .block{width:100%;min-height:260px;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;border:2px solid var(--pine);border-radius:10px;padding:10px 12px;background:#fff;white-space:pre-wrap}
 .ok{color:var(--pine);font-weight:600}
 footer{border-top:1px solid var(--line);padding:18px 0 40px;font-size:.85rem;color:var(--ink-2)}
+
+/* highlighter: quiet until a sentence is tapped */
+.hs{cursor:pointer;border-radius:3px;-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background-color .15s ease}
+@media (hover:hover){.hs:hover{background:#F1EFE4}}
+.hs.sel{background:#F1EFE4;box-shadow:0 0 0 2px var(--amber)}
+.hs:focus-visible{outline:2px solid var(--amber);outline-offset:1px}
+.hs.on{padding:0 1px}
+.hs.flashy{animation:hsflash 1.2s ease-out}
+@keyframes hsflash{0%{box-shadow:0 0 0 4px var(--amber)}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.hs{transition:none}.hs.flashy{animation:none;outline:2px solid var(--amber)}}
+#hlpal{position:absolute;z-index:20;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 6px 24px rgba(29,39,51,.18);max-width:min(420px,calc(100vw - 24px))}
+#hlpal[hidden]{display:none}
+#hlpal .sw{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 10px 5px 6px;background:#fff;cursor:pointer;font-size:.85rem;max-width:12em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hlpal .sw i,.cc i,.nb-card i{display:inline-block;flex:none;width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.15)}
+#hlpal .sw[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+#hlpal .rm{border:0;background:none;color:var(--warn);text-decoration:underline;cursor:pointer;font-size:.85rem;padding:5px 6px}
+#hlpal .x{border:0;background:none;cursor:pointer;font-size:1.1rem;line-height:1;padding:4px 8px;color:var(--ink-2);margin-left:auto}
+@media (max-width:600px){#hlpal{position:fixed;left:0;right:0;bottom:0;top:auto!important;max-width:none;border-radius:14px 14px 0 0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));justify-content:flex-start}}
+.cc{border:1px solid var(--line);border-radius:10px;background:#fff;margin:6px 0 4px}
+.cc>summary{list-style:none;cursor:pointer;padding:8px 12px;display:flex;gap:8px;align-items:center;font-size:.9rem;color:var(--ink-2)}
+.cc>summary::-webkit-details-marker{display:none}
+.cc>summary i{width:12px;height:12px}
+.cc .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 12px;padding:4px 12px 12px}
+.cc label{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.cc input{flex:1;min-width:0;border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:.9rem}
+.nb{margin-top:28px}
+.nb h2{margin-top:0}
+.nb .tools{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:.85rem;color:var(--ink-2);margin:0 0 8px}
+.nb .tools button[aria-pressed]{border:1px solid var(--line);background:#fff;border-radius:999px;padding:2px 10px;cursor:pointer;font-size:.85rem}
+.nb .tools button[aria-pressed="true"]{border-color:var(--pine);color:var(--pine);font-weight:600}
+.nb-group{margin:12px 0 4px;font-weight:600;font-size:.9rem;display:flex;gap:6px;align-items:center}
+.nb-group i{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.15)}
+.nb-card{border:1px solid var(--line);border-left-width:6px;border-radius:8px;background:#fff;padding:8px 10px;margin:6px 0}
+.nb-card .s{font:.95rem/1.5 var(--serif);cursor:pointer;margin:0}
+.nb-card .src{font-size:.8rem;color:var(--ink-2);margin-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.nb-card .citebtn{margin-left:auto;border:1px solid var(--pine);color:var(--pine);background:#fff;border-radius:6px;padding:1px 8px;font-size:.8rem;cursor:pointer}
+.nb-empty{font-size:.9rem;color:var(--ink-2)}
+.writegrid{display:block}
+.nbpanel{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:2px 12px;margin:12px 0}
+.nbpanel>summary{cursor:pointer;padding:8px 0;font-weight:600}
+.nbpanel .nb{margin-top:0;max-height:60vh;overflow:auto;padding-bottom:8px}
+@media (min-width:1060px){
+  #app.wide .wrap{max-width:1100px}
+  .writegrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+  .writegrid textarea.memo{min-height:60vh}
+  .writegrid .nbpanel{margin:0}
+  .writegrid .nbpanel .nb{max-height:calc(60vh - 40px)}
+}
 </style>
 </head>
 <body>
@@ -150,7 +198,7 @@ const S = JSON.parse(document.getElementById("scenario").textContent);
 const STORE = "simlearn:" + S.id + ":v" + S.version;
 
 /* ---------- state (kept only in this browser tab, so a reload doesn't lose work) ---------- */
-let st = {mode:"3", role:null, tab:"context", choices:{}, firstLook:{}, mcq:{}, decisions:{}, however:{}, memo:"", consent:false, notes:""};
+let st = {mode:"3", role:null, tab:"context", choices:{}, firstLook:{}, mcq:{}, decisions:{}, however:{}, memo:"", consent:false, notes:"", hl:{}, hlLabels:{}, hlGroup:"colour"};
 try { const raw = sessionStorage.getItem(STORE); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch(e) {}
 function save(){ try { sessionStorage.setItem(STORE, JSON.stringify(st)); } catch(e) {} }
 
@@ -232,12 +280,249 @@ function renderStart(){
   });
 }
 
+/* ---------- highlighter: tap a sentence, give it a colour; nothing is right or wrong ---------- */
+// Lives only in this tab (sessionStorage, as the rest of the state). Never part of the submission block.
+const HL = [["yellow","Yellow","#FFF176"],["green","Green","#B9F6CA"],["pink","Pink","#F8BBD0"],
+            ["blue","Blue","#B3E5FC"],["orange","Orange","#FFE0B2"],["purple","Purple","#E1BEE7"]];
+const HLC = Object.fromEntries(HL.map(([k,,c]) => [k, c]));
+const HL_HINT = ({AE:["Position","Evidence","Reasoning","Counter-argument","Weak spot","Use in my brief"],
+                  EFD:["Constraint","User need","Idea","Risk","Question","Use in my pitch"]})[S.course]
+                || ["Number","Risk","Opportunity","Deadline","Question","Use in my memo"];
+const hlName = k => { const i = HL.findIndex(x => x[0] === k); return i < 0 ? k : HL[i][1]; };
+const hlLabel = k => ((st.hlLabels || {})[k] || "").trim();
+const ABBR = new Set("e.g i.e dr prof mr mrs ms st etc vs cf approx no nos fig figs p pp jr sr inc ltd co corp dept est al ca vol vols ed eds op mt ft gen col lt sgt rev govt univ assn bros nr tel ref".split(" "));
+const OPEN_Q = "\u201C\u2018\"", CLOSE_Q = "\u201D\u2019\"'", OPEN_B = "([", CLOSE_B = ")]";
+// Split text into sentences: returns [{s, gap}] where gap is the whitespace before the sentence (text = all joined).
+function splitSentences(text){
+  const out = [], n = text.length;
+  let start = 0, i = 0, quoteEnd = -1, depth = 0;
+  const push = (end) => { const raw = text.slice(start, end); if (raw) out.push(raw); start = end; };
+  while (i < n) {
+    const ch = text[i];
+    if (ch === "\n") { push(i); let j = i; while (j < n && /\s/.test(text[j])) j++; push(j); i = j; continue; }
+    if (OPEN_B.includes(ch)) { const close = text.indexOf(ch === "(" ? ")" : "]", i); if (close > i && close - i < 240 && !text.slice(i, close).includes("\n")) depth++; }
+    else if (CLOSE_B.includes(ch) && depth > 0) depth--;
+    if (i > quoteEnd && (ch === "\u201C" || (ch === '"' && (i === 0 || /[\s(\[]/.test(text[i-1]))))) {
+      const close = text.indexOf(ch === "\u201C" ? "\u201D" : '"', i + 1);
+      if (close > i && close - i < 200 && !text.slice(i, close).includes("\n")) quoteEnd = close;
+    }
+    if (".!?".includes(ch)) {
+      let j = i + 1;
+      while (j < n && (CLOSE_Q + CLOSE_B + ".!?").includes(text[j])) { if (CLOSE_B.includes(text[j]) && depth > 0) depth--; j++; }
+      const inside = depth > 0 || (quoteEnd >= j);
+      if (!inside && j < n && /\s/.test(text[j])) {
+        let k = j; while (k < n && /[ \t]/.test(text[k])) k++;
+        const next = text[k] || "";
+        const word = (text.slice(Math.max(0, i - 12), i).match(/([A-Za-z.]+)$/) || ["",""])[1].toLowerCase().replace(/^\.+/, "");
+        const pre = text[i - word.length - 1] || "";
+        const initial = /^[a-z]$/i.test(word) && !/['\u2019\w]/.test(pre);   // "Oduya, B." but not "don't."
+        const isAbbr = ch === "." && (ABBR.has(word) || initial || /^([a-z]\.)+[a-z]$/i.test(word));
+        if (!isAbbr && (next === "\n" || /[A-Z0-9\u00C0-\u024F\u201C\u2018"(\[\u2014\u2013\u20AC\u00A3$-]/.test(next))) { push(j); let m = j; while (m < n && /[ \t]/.test(text[m])) m++; push(m); i = m; continue; }
+      }
+      i = j; continue;
+    }
+    i++;
+  }
+  push(n);
+  return out;
+}
+const isSentence = s => words(s) >= 3 && (/[.!?\u201D"')\]]\s*$/.test(s.trim()) || words(s) >= 5);
+// Sentence registry for everything this student can highlight: context + own contacts' emails + the opened option.
+function hlSources(){
+  const parts = [], c = S.context;
+  c.text.split("\n\n").forEach((p, i) => parts.push({cid:"ctx", part:"p" + i, text:p, src:{name:"Context"}}));
+  parts.push({cid:"ctx", part:"scar", text:c.scar.text, src:{name:c.scar.label}});
+  parts.push({cid:"ctx", part:"proof", text:c.proof.text, src:{name:c.proof.label}});
+  parts.push({cid:"ctx", part:"clock", text:c.constraint, src:{name:"The clock"}});
+  const r = st.role && role();
+  (r ? r.characters : []).forEach(ch => {
+    const src = {name:ch.name, title:ch.title, citation:ch.citation, cid:ch.id};
+    parts.push({cid:ch.id, part:"email", text:ch.email, src});
+    const o = st.choices[ch.id] && ch.offers.find(x => x.id === st.choices[ch.id]);
+    if (o) parts.push({cid:ch.id, part:"opt", text:unscramble(o.text, `${S.salt}|${ch.id}|${o.id}`), src:{...src, option:o.title}});
+  });
+  return parts;
+}
+function hlKey(cid, part, idx, s){ return `${cid}|${part}|${idx}|${fnv(s.trim()).toString(36)}`; }
+function hlRegistry(){
+  const reg = {}; let order = 0;
+  hlSources().forEach(p => {
+    let idx = 0;
+    splitSentences(p.text).forEach(s => { if (isSentence(s)) { reg[hlKey(p.cid, p.part, idx, s)] = {t:s.trim(), src:p.src, cid:p.cid, n:order++}; idx++; } });
+  });
+  return reg;
+}
+// Text -> HTML with each sentence wrapped in a tappable span (the text itself is unchanged).
+function hlHTML(text, cid, part){
+  let idx = 0;
+  return splitSentences(text).map(s => {
+    if (!isSentence(s)) return esc(s);
+    const k = hlKey(cid, part, idx++, s), col = (st.hl || {})[k];
+    const on = col && HLC[col];
+    return `<span class="hs${on ? " on" : ""}" role="button" tabindex="0" data-k="${esc(k)}"${on ? ` style="background:${HLC[col]}" aria-describedby="hld-${col}"` : ""}>${esc(s)}</span>`;
+  }).join("");
+}
+// Hidden descriptions read out after a highlighted sentence ("Highlighted yellow: Evidence").
+function hlDescs(){
+  let d = document.getElementById("hldesc");
+  if (!d) { d = document.createElement("div"); d.id = "hldesc"; d.hidden = true; document.body.appendChild(d); }
+  d.innerHTML = HL.map(([k, name]) => `<span id="hld-${k}">Highlighted ${name.toLowerCase()}${hlLabel(k) ? ": " + esc(hlLabel(k)) : ""}</span>`).join("");
+}
+function paletteEl(){
+  let p = document.getElementById("hlpal");
+  if (!p) { p = document.createElement("div"); p.id = "hlpal"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", "Highlight this sentence"); p.hidden = true; document.body.appendChild(p); }
+  return p;
+}
+let hlOpenFor = null;
+function openPalette(span){
+  const p = paletteEl(), k = span.dataset.k, cur = (st.hl || {})[k];
+  if (hlOpenFor) hlOpenFor.classList.remove("sel");
+  hlOpenFor = span; span.classList.add("sel");
+  p.innerHTML = HL.map(([key, name, c]) => `<button type="button" class="sw" data-col="${key}" aria-pressed="${cur===key}" aria-label="${esc(name + (hlLabel(key) ? ": " + hlLabel(key) : ""))}"><i style="background:${c}"></i>${esc(hlLabel(key) || name)}</button>`).join("")
+    + (cur ? `<button type="button" class="rm" data-col="">Remove</button>` : "")
+    + `<button type="button" class="x" aria-label="Close">×</button>`;
+  p.hidden = false;
+  if (!matchMedia("(max-width:600px)").matches) {
+    const r = span.getBoundingClientRect(), w = p.offsetWidth;
+    p.style.top = (window.scrollY + r.bottom + 6) + "px";
+    p.style.left = Math.max(8, Math.min(window.scrollX + r.left, window.scrollX + document.documentElement.clientWidth - w - 8)) + "px";
+  } else { p.style.left = ""; p.style.top = ""; }
+  (p.querySelector('.sw[aria-pressed="true"]') || p.querySelector(".sw")).focus();
+  p.onfocusout = e => { if (!e.relatedTarget || !p.contains(e.relatedTarget)) setTimeout(() => { if (!p.contains(document.activeElement)) closePalette(false); }, 0); };
+  p.onclick = e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.classList.contains("x")) return closePalette(true);
+    setHighlight(k, b.dataset.col || null); closePalette(true);
+  };
+}
+function closePalette(refocus){
+  const p = document.getElementById("hlpal"); if (p) p.hidden = true;
+  if (hlOpenFor) hlOpenFor.classList.remove("sel");
+  if (refocus && hlOpenFor && document.body.contains(hlOpenFor)) hlOpenFor.focus({preventScroll:true});
+  hlOpenFor = null;
+}
+function setHighlight(k, col){
+  st.hl = st.hl || {};
+  if (col) st.hl[k] = col; else delete st.hl[k];
+  save();
+  document.querySelectorAll(`.hs[data-k="${CSS.escape(k)}"]`).forEach(sp => {
+    sp.classList.toggle("on", !!col); sp.style.background = col ? HLC[col] : "";
+    if (col) sp.setAttribute("aria-describedby", "hld-" + col); else sp.removeAttribute("aria-describedby");
+  });
+  refreshNotebook();
+}
+// Harvard in-text citation from a reference: one author (Smith, 2024), two (Smith and Jones, 2024),
+// three or more (Smith et al., 2024), or a body with no comma (World Bank, 2023).
+function citeOf(citation){
+  const y = (citation || "").match(/\((\d{4}[a-z]?)\)/);
+  if (!y) return "";
+  const who = citation.slice(0, y.index).trim().replace(/,$/, "");
+  const names = who.split(/\s*(?:&|\band\b)\s*|,\s*(?=[^,]*,)/)
+                   .map(s => s.replace(/,\s*([A-Z]\.?\s*)+$/, "").replace(/\s+([A-Z]\.\s*)+$/, "").replace(/,$/, "").trim())
+                   .filter(s => s && !/^([A-Z]\.\s*)+$/.test(s));
+  if (!names.length) return "";
+  const auth = names.length === 1 ? names[0] : names.length === 2 ? `${names[0]} and ${names[1]}` : `${names[0]} et al.`;
+  return `(${auth}, ${y[1]})`;
+}
+function notebookHTML(inSubmit){
+  const reg = hlRegistry();
+  const items = Object.entries(st.hl || {}).filter(([k, col]) => reg[k] && HLC[col]).map(([k, col]) => ({k, col, ...reg[k]})).sort((a, b) => a.n - b.n);
+  const byColour = st.hlGroup !== "source";
+  const tools = `<div class="tools"><span>Show by</span><button type="button" data-grp="colour" aria-pressed="${byColour}">colour</button><button type="button" data-grp="source" aria-pressed="${!byColour}">source</button>
+    ${items.length ? `<button type="button" class="linkish" data-clear="1" style="margin-left:auto">Clear all highlights</button><span data-clearask hidden>Remove all ${items.length}? <button type="button" class="linkish" data-clearyes="1">Yes, clear them</button> · <button type="button" class="linkish" data-clearno="1">Keep them</button></span>` : ""}</div>`;
+  if (!items.length) return tools + `<p class="nb-empty">Tap any sentence in the Context or Inbox to highlight it. Your highlights collect here${inSubmit ? "" : " and next to your writing"}.</p>`;
+  const groups = [];
+  if (byColour) HL.forEach(([key, name, c]) => { const g = items.filter(x => x.col === key); if (g.length) groups.push({head:`<i style="background:${c}"></i>${esc(hlLabel(key) || name)}`, g}); });
+  else { const seen = []; items.forEach(x => { if (!seen.includes(x.src.name)) seen.push(x.src.name); }); seen.forEach(nm => groups.push({head:esc(nm), g:items.filter(x => x.src.name === nm)})); }
+  const card = x => {
+    const cite = inSubmit && S.course === "AE" && x.src.citation ? citeOf(x.src.citation) : "";
+    return `<div class="nb-card" style="border-left-color:${HLC[x.col]}">
+      <p class="s" role="button" tabindex="0" data-jump="${esc(x.k)}" title="Show this sentence where it came from">${esc(x.t)}</p>
+      <div class="src"><span>${esc(hlLabel(x.col) || hlName(x.col))} · ${esc(x.src.name)}${x.src.title ? ", " + esc(x.src.title) : ""}${x.src.option ? ` (“${esc(x.src.option)}”)` : ""}</span>
+        ${cite ? `<button type="button" class="citebtn" data-cite="${esc(cite)}" aria-label="Insert ${esc(cite)} into your text">Cite ${esc(cite)}</button>` : ""}</div>
+      ${S.course === "AE" && x.src.citation ? `<div class="src">${esc(x.src.citation)}</div>` : ""}</div>`;
+  };
+  return tools + groups.map(G => `<div class="nb-group">${G.head}</div>` + G.g.map(card).join("")).join("");
+}
+function refreshNotebook(){
+  document.querySelectorAll("[data-nb]").forEach(el => { el.innerHTML = notebookHTML(el.dataset.nb === "submit"); });
+  const n = Object.keys(hlRegistry()).filter(k => (st.hl || {})[k]).length, c = document.getElementById("nbcount");
+  if (c) c.textContent = n ? ` (${n})` : "";
+}
+let memoPos = null;   // where Cite inserts: the last cursor position in the memo
+function insertCite(cite){
+  const m = document.getElementById("memo"); if (!m) return;
+  const v = m.value, pos = memoPos == null ? v.length : Math.min(memoPos, v.length);
+  const before = v.slice(0, pos), after = v.slice(pos);
+  const ins = (before && !/[\s(]$/.test(before) ? " " : "") + cite;
+  m.value = before + ins + after; st.memo = m.value; save();
+  memoPos = pos + ins.length; m.focus(); m.setSelectionRange(memoPos, memoPos);
+  m.dispatchEvent(new Event("input"));
+}
+function jumpTo(k){
+  const tab = k.startsWith("ctx|") ? "context" : "inbox";
+  if (st.tab !== tab) { st.tab = tab; save(); render(); }
+  const sp = document.querySelector(`.hs[data-k="${CSS.escape(k)}"]`);
+  if (!sp) return;
+  const d = sp.closest("details"); if (d) d.open = true;
+  sp.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"center"});
+  sp.classList.remove("flashy"); void sp.offsetWidth; sp.classList.add("flashy"); sp.focus({preventScroll:true});
+  setTimeout(() => sp.classList.remove("flashy"), 1300);
+}
+function colourCodeHTML(){
+  const set = HL.filter(([k]) => hlLabel(k)).length;
+  return `<details class="cc"><summary>${HL.map(([,,c]) => `<i style="background:${c}"></i>`).join("")}<span>My colour code${set ? "" : " — tap any sentence to highlight it"}</span></summary>
+    <div class="grid">${HL.map(([k, name, c], i) => `<label><i style="background:${c}"></i><span class="sr" style="position:absolute;left:-9999px">${name}</span><input type="text" data-cc="${k}" maxlength="24" value="${esc(hlLabel(k))}" placeholder="${esc(HL_HINT[i])}" aria-label="${name} means"></label>`).join("")}</div></details>`;
+}
+// One set of listeners for all highlight interactions (click handlers only; no forms).
+document.addEventListener("click", e => {
+  const p = document.getElementById("hlpal");
+  const hs = e.target.closest(".hs");
+  if (hs) { e.preventDefault(); openPalette(hs); return; }
+  if (p && !p.hidden && !e.target.closest("#hlpal")) closePalette(false);
+  const g = e.target.closest("[data-grp]");
+  if (g) { const box0 = g.closest("[data-nb]"), grp = g.dataset.grp; st.hlGroup = grp; save(); refreshNotebook();
+           const again = box0 && box0.querySelector(`[data-grp="${grp}"]`); if (again) again.focus(); return; }
+  const j = e.target.closest("[data-jump]"); if (j) { jumpTo(j.dataset.jump); return; }
+  const c = e.target.closest("[data-cite]"); if (c) { insertCite(c.dataset.cite); return; }
+  const box = e.target.closest("[data-nb]");
+  if (e.target.closest("[data-clear]")) { box.querySelector("[data-clearask]").hidden = false; e.target.hidden = true; box.querySelector("[data-clearno]").focus(); return; }
+  const head = () => { const h = document.getElementById("nbhead"); if (h) h.focus(); };
+  if (e.target.closest("[data-clearno]")) { refreshNotebook(); head(); return; }
+  if (e.target.closest("[data-clearyes]")) {
+    st.hl = {}; save();
+    document.querySelectorAll(".hs.on").forEach(sp => { sp.classList.remove("on"); sp.style.background = ""; sp.removeAttribute("aria-describedby"); });
+    refreshNotebook(); head();
+    const live = document.getElementById("nblive"); if (live) { live.textContent = ""; setTimeout(() => { live.textContent = "All highlights cleared."; }, 50); }
+    return;
+  }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { const p = document.getElementById("hlpal"); if (p && !p.hidden) { closePalette(true); return; } }
+  const t = e.target;
+  if ((e.key === "Enter" || e.key === " ") && t.classList && (t.classList.contains("hs") || t.dataset.jump)) {
+    e.preventDefault();                         // Space would scroll the page
+    if (e.key === "Enter") { if (t.classList.contains("hs")) openPalette(t); else jumpTo(t.dataset.jump); }
+  }
+});
+document.addEventListener("keyup", e => {      // Space acts on release, so the palette doesn't catch the same key
+  const t = e.target;
+  if (e.key === " " && t.classList && (t.classList.contains("hs") || t.dataset.jump)) { if (t.classList.contains("hs")) openPalette(t); else jumpTo(t.dataset.jump); }
+});
+document.addEventListener("input", e => {
+  const k = e.target.dataset && e.target.dataset.cc;
+  if (k) { st.hlLabels = st.hlLabels || {}; st.hlLabels[k] = e.target.value; save(); refreshNotebook(); hlDescs(); }
+});
+
 /* ---------- main shell ---------- */
 const ALL_TABS = [["context","Context"],["firstlook","First look"],["listening","Listening"],["inbox","Inbox"],["decisions","Decisions"],["submit","Write & submit"]];
 const TABS = ALL_TABS.filter(([k]) => k !== "listening" || (S.listening && S.listening.questions && S.listening.questions.length));
 function render(){
+  closePalette(false);
+  $("#app").classList.toggle("wide", !!st.role && st.tab === "submit");
   if (!st.role) return renderStart();
   if (!TABS.some(([k]) => k === st.tab)) st.tab = "context";
+  hlDescs();
   const r = role();
   const pending = r.characters.filter(c => !st.choices[c.id]).length;
   $("#app").innerHTML = `
@@ -252,7 +537,7 @@ function render(){
   $("#resetNo").onclick = () => { $("#resetAsk").hidden = true; $("#reset").hidden = false; };
   $("#resetYes").onclick = () => {
     try { sessionStorage.removeItem(STORE); } catch(e) {}
-    st = {mode:"3", role:null, tab:"context", choices:{}, firstLook:{}, mcq:{}, decisions:{}, however:{}, memo:"", consent:false, notes:""};
+    st = {mode:"3", role:null, tab:"context", choices:{}, firstLook:{}, mcq:{}, decisions:{}, however:{}, memo:"", consent:false, notes:"", hl:{}, hlLabels:{}, hlGroup:"colour"};
     pendingPick = {}; render(); window.scrollTo(0,0);
   };
   ({context:tabContext, firstlook:tabFirstLook, listening:tabListening, inbox:tabInbox, decisions:tabDecisions, submit:tabSubmit})[st.tab]();
@@ -263,10 +548,10 @@ function tabContext(){
   const c = S.context;
   $("#main").innerHTML = `
     ${S.image ? `<figure class="hero"><img src="${S.image.src}" alt="${esc(S.image.alt)}"></figure>` : ""}
-    <div class="prose">${c.text.split("\n\n").map(p => `<p>${esc(p)}</p>`).join("")}</div>
-    <div class="note scar"><b>${esc(c.scar.label)}</b><p class="prose">${esc(c.scar.text)}</p></div>
-    <div class="note proof"><b>${esc(c.proof.label)}</b><p class="prose">${esc(c.proof.text)}</p></div>
-    <div class="note clock"><b>The clock</b><p class="prose">${esc(c.constraint)}</p></div>
+    <div class="prose">${c.text.split("\n\n").map((p, i) => `<p>${hlHTML(p, "ctx", "p" + i)}</p>`).join("")}</div>
+    <div class="note scar"><b>${esc(c.scar.label)}</b><p class="prose">${hlHTML(c.scar.text, "ctx", "scar")}</p></div>
+    <div class="note proof"><b>${esc(c.proof.label)}</b><p class="prose">${hlHTML(c.proof.text, "ctx", "proof")}</p></div>
+    <div class="note clock"><b>The clock</b><p class="prose">${hlHTML(c.constraint, "ctx", "clock")}</p></div>
     <h2>Who knows what</h2>
     <p class="muted">You only see your own contacts. What the others know reaches you by talking to ${st.mode === "2" ? "your partner" : "your group"}.</p>
     <div class="contacts">${roles().map(r => `<div><b>${esc(roleName(r))}</b>${r.id===st.role?" (you)":""}<br><span class="muted">${r.characters.map(ch => `${esc(ch.name)}, ${esc(ch.title)}`).join(" · ")}</span></div>`).join("")}</div>`;
@@ -319,9 +604,12 @@ let pendingPick = {};   // cid -> offer id, chosen but not yet confirmed
 function tabInbox(){
   const r = role();
   $("#main").innerHTML = `
+    ${colourCodeHTML()}
     <p>Each contact will tell you <b>one more thing</b> — you choose what. All three are useful, but some matter much more than others — and what matters most often depends on what ${pair() ? "your partner's" : "your teammates'"} contacts know. <b>Talk to ${pair() ? "your partner" : "your group"} before you choose.</b> Your choice is final.</p>
-    ${r.characters.map(c => mailHTML(c)).join("")}`;
+    ${r.characters.map(c => mailHTML(c)).join("")}
+    <section class="nb"><h2 id="nbhead" tabindex="-1">Your highlights<span id="nbcount"></span></h2><p id="nblive" class="small muted" aria-live="polite"></p><div data-nb="inbox"></div></section>`;
   r.characters.forEach(c => wireMail(c));
+  refreshNotebook();
 }
 function callName(n){   // "Dr. Elena Whitfield" -> "Dr. Whitfield"; "Freja Lund" -> "Freja"
   const m = n.match(/^(Dr\.?|Prof\.?|Professor)\s+.*\s(\S+)$/);
@@ -334,7 +622,7 @@ function mailHTML(c){
   if (chosen) {
     const o = c.offers.find(x => x.id === chosen);
     offers = `<div class="offers done">
-        <div class="opened"><p class="t">${esc(o.title)}</p><div class="prose">${esc(unscramble(o.text, `${S.salt}|${c.id}|${o.id}`))}</div></div>
+        <div class="opened"><p class="t">${esc(o.title)}</p><div class="prose">${hlHTML(unscramble(o.text, `${S.salt}|${c.id}|${o.id}`), c.id, "opt")}</div></div>
         ${c.offers.filter(x => x.id !== chosen).map(x => `<div class="offer closed" aria-disabled="true">${esc(x.title)}</div>`).join("")}
       </div>`;
   } else {
@@ -347,7 +635,7 @@ function mailHTML(c){
   return `<details class="mail" id="m_${c.id}" ${open || st.tab==="inbox" ? "open" : ""}>
     <summary><span><span class="from">${esc(c.name)}</span>, <span class="muted">${esc(c.title)}</span><br><span class="subj">${esc(c.subject)}</span></span>
       <span class="state ${chosen?"":"todo"}">${chosen ? "Answered" : "Choose one"}</span></summary>
-    <div class="body"><div class="prose">${esc(c.email)}</div>${c.citation ? `<p class="cite"><b>Reference:</b> ${esc(c.citation)}</p>` : ""}${offers}</div></details>`;
+    <div class="body"><div class="prose">${hlHTML(c.email, c.id, "email")}</div>${c.citation ? `<p class="cite"><b>Reference:</b> ${esc(c.citation)}</p>` : ""}${offers}</div></details>`;
 }
 function wireMail(c){
   const box = $("#m_" + c.id);
@@ -357,7 +645,7 @@ function wireMail(c){
 }
 function rerenderMail(c){
   const old = $("#m_" + c.id); const tmp = document.createElement("div"); tmp.innerHTML = mailHTML(c);
-  old.replaceWith(tmp.firstElementChild); wireMail(c);
+  old.replaceWith(tmp.firstElementChild); wireMail(c); refreshNotebook();
   const btn = $("#m_" + c.id + " [data-confirm]"); if (btn) btn.focus();
 }
 function updateDot(){ const pending = role().characters.filter(c => !st.choices[c.id]).length; const t = document.querySelector('.tab[data-tab="inbox"] .dot'); if (t && !pending) t.remove(); }
@@ -384,8 +672,11 @@ function tabSubmit(){
     <h2 style="margin-top:0">Your ${esc(W.label)} to ${esc(W.addressee)}</h2>
     <p>About ${W.words} words. Your ${esc(W.label)} should:</p>
     <ul>${W.instructions.map(i => `<li>${esc(i)}</li>`).join("")}</ul>
-    <textarea class="memo" id="memo" placeholder="Write here. Your text is kept in this tab until you close it.">${esc(st.memo)}</textarea>
-    <div class="count" id="count"></div>
+    <div class="writegrid"><div>
+      <textarea class="memo" id="memo" placeholder="Write here. Your text is kept in this tab until you close it.">${esc(st.memo)}</textarea>
+      <div class="count" id="count"></div></div>
+      <details class="nbpanel" id="nbpanel" ${st.nbClosed ? "" : "open"}><summary id="nbhead">Your highlights<span id="nbcount"></span></summary><p id="nblive" class="small muted" aria-live="polite"></p><section class="nb" data-nb="submit"></section></details>
+    </div>
 
     <div class="consent">
       <b>Can your teacher check your text with AI?</b>
@@ -398,6 +689,10 @@ function tabSubmit(){
     <div id="out"></div>`;
   const memo = $("#memo"), count = () => { const n = words(memo.value); $("#count").textContent = `${n} word${n===1?"":"s"}`; };
   memo.oninput = () => { st.memo = memo.value; save(); count(); }; count();
+  const keep = () => { memoPos = memo.selectionStart; };
+  ["keyup","click","select","input","blur"].forEach(ev => memo.addEventListener(ev, keep));
+  memoPos = null; refreshNotebook();
+  $("#nbpanel").ontoggle = e => { st.nbClosed = !e.target.open; save(); };
   $("#consent").onchange = e => { st.consent = e.target.checked; save(); $("#out").innerHTML = ""; };
   $("#make").onclick = makeSubmission;
 }

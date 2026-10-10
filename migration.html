@@ -139,6 +139,10 @@ legend{font-weight:600;margin-bottom:.5rem}
 /* writing + submit */
 textarea.memo{width:100%;min-height:340px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:1rem/1.6 var(--serif);background:#fff}
 .count{font-size:.85rem;color:var(--ink-2);text-align:right}
+.rubric{border:1px solid var(--line);background:#fff;border-radius:12px;padding:0 16px;margin:0 0 16px}
+.rubric>summary{cursor:pointer;padding:12px 0;font-weight:600}
+.rubric h3{font-size:1rem;margin:12px 0 2px}.rubric .aim{margin:0 0 4px;color:var(--ink-2)}
+.rubric ul{margin:0 0 8px;padding-left:20px}.rubric>p:last-child{margin-bottom:14px}
 .consent{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px 16px;margin:20px 0}
 .consent label{display:flex;gap:10px;align-items:flex-start;font-weight:600;margin-top:8px}
 .consent input{margin-top:5px;width:18px;height:18px}
@@ -733,6 +737,9 @@ function tabSubmit(){
     <h2 style="margin-top:0">Your ${esc(W.label)} to ${esc(W.addressee)}</h2>
     <p>About ${W.words} words. Your ${esc(W.label)} should:</p>
     <ul>${W.instructions.map(i => `<li>${esc(i)}</li>`).join("")}</ul>
+    ${S.rubric ? `<details class="rubric" id="rubric" ${st.rubricOpen ? "open" : ""}><summary>What makes a strong ${esc(W.label)}</summary>
+      ${S.rubric.map(c => `<h3>${esc(c.name)}</h3><p class="aim small">${esc(c.aim)}</p><ul class="small">${c.look_for.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`).join("")}
+      <p class="small muted">Your teacher uses these same points for feedback and for exams.</p></details>` : ""}
     <div class="writegrid"><div>
       <textarea class="memo" id="memo" placeholder="Write here. Your text is kept in this tab until you close it.">${esc(st.memo)}</textarea>
       <div class="count" id="count"></div></div>
@@ -754,6 +761,7 @@ function tabSubmit(){
   ["keyup","click","select","input","blur"].forEach(ev => memo.addEventListener(ev, keep));
   memoPos = null; refreshNotebook();
   $("#nbpanel").ontoggle = e => { st.nbClosed = !e.target.open; save(); };
+  const rb = $("#rubric"); if (rb) rb.ontoggle = () => { st.rubricOpen = rb.open; save(); };
   $("#consent").onchange = e => { st.consent = e.target.checked; save(); $("#out").innerHTML = ""; };
   $("#make").onclick = makeSubmission;
 }

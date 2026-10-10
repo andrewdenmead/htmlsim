@@ -112,6 +112,15 @@ legend{font-weight:600;margin-bottom:.5rem}
 .dec .opt{display:flex;gap:10px;align-items:flex-start;padding:8px 0}
 .dec .opt input{margin-top:5px}
 .dec textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px}
+.bud{border:1px solid var(--line);border-radius:12px;background:#fff;padding:6px 16px;margin:16px 0}
+.bud .row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.bud .row:first-child{border-top:0}
+.bud .row .l{font-size:.95rem}
+.bud .row .u{font-size:.8rem;color:var(--ink-2)}
+.bud .row input{width:5.5em;text-align:right;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}
+.bud .row .sub{grid-column:1/-1;font-size:.8rem;color:var(--ink-2);text-align:right}
+.total{position:sticky;bottom:0;background:var(--paper);border-top:2px solid var(--pine);padding:10px 0;margin-top:8px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-weight:600}
+.total .off{color:var(--warn)} .total .on{color:var(--pine)}
 .flash{border:2px solid var(--amber);border-radius:12px;padding:14px 16px;margin-top:22px;background:var(--amber-bg)}
 .flash .prose{white-space:pre-line}
 .cite{font-size:.9rem;color:var(--ink-2);border-left:3px solid var(--line);padding:2px 0 2px 10px;margin:12px 0 0}
@@ -198,7 +207,7 @@ const S = JSON.parse(document.getElementById("scenario").textContent);
 const STORE = "simlearn:" + S.id + ":v" + S.version;
 
 /* ---------- state (kept only in this browser tab, so a reload doesn't lose work) ---------- */
-let st = {mode:"3", role:null, tab:"context", choices:{}, firstLook:{}, mcq:{}, decisions:{}, however:{}, memo:"", consent:false, notes:"", hl:{}, hlLabels:{}, hlGroup:"colour"};
+let st = {mode:"3", role:null, tab:"context", choices:{}, firstLook:{}, mcq:{}, decisions:{}, however:{}, memo:"", consent:false, notes:"", hl:{}, hlLabels:{}, hlGroup:"colour", budget:{}, rationale:""};
 try { const raw = sessionStorage.getItem(STORE); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch(e) {}
 function save(){ try { sessionStorage.setItem(STORE, JSON.stringify(st)); } catch(e) {} }
 
@@ -237,6 +246,13 @@ function checkCode(parts){
 }
 const norm = t => t.replace(/\s+/g, " ").trim();
 
+/* ---------- budget cartridges: allocate a fixed fund across line items instead of A/B decisions ---------- */
+const B = S.budget || null;
+const money = n => (B ? B.currency || "£" : "£") + Math.round(n).toLocaleString("en-GB");
+const budgetVal = id => { const v = parseInt((st.budget || {})[id], 10); return isNaN(v) ? 0 : v; };
+const budgetTotal = () => B ? B.items.reduce((s, it) => s + budgetVal(it.id) * it.unit_cost, 0) : 0;
+const budgetOK = () => B && Math.abs(budgetTotal() - B.target) <= (B.tolerance || 0);
+
 /* ---------- the top bar: same place on every screen ---------- */
 function teacherLink(){
   return S.teacher_url ? `<a class="teacher" href="${esc(S.teacher_url.replace(/\/?$/, "/") + "?sim=" + encodeURIComponent(S.id))}" target="_blank" rel="noopener" title="Opens the teacher tool (password needed)">Teacher</a>` : "";
@@ -252,7 +268,7 @@ function renderStart(){
   <header class="bar">${topBar("")}</header>
   <div class="wrap start">
     <h1>${esc(S.title)}</h1>
-    <p class="lede">You work for ${esc(S.org)}. Your ${two ? "team of two" : "group"} has to make ${num(S.decisions.length)} decisions — and each of you holds information the other${two ? "" : "s"} ${two ? "doesn't" : "don't"} have.</p>
+    <p class="lede">You work for ${esc(S.org)}. Your ${two ? "team of two" : "group"} has to ${B ? `split a ${money(B.target)} budget` : `make ${num(S.decisions.length)} decisions`} — and each of you holds information the other${two ? "" : "s"} ${two ? "doesn't" : "don't"} have.</p>
     <form id="startForm">
       <fieldset><legend>${two ? "Which player are you?" : "Your role"}</legend>
         <p class="muted small">${two ? "Decide between you who is Player 1 and who is Player 2." : "Agree in your group who takes which role. If there are more than three of you, two people can share a role."}</p>
@@ -515,7 +531,7 @@ document.addEventListener("input", e => {
 });
 
 /* ---------- main shell ---------- */
-const ALL_TABS = [["context","Context"],["firstlook","First look"],["listening","Listening"],["inbox","Inbox"],["decisions","Decisions"],["submit","Write & submit"]];
+const ALL_TABS = [["context","Context"],["firstlook","First look"],["listening","Listening"],["inbox","Inbox"],["decisions", B ? "Budget" : "Decisions"],["submit","Write & submit"]];
 const TABS = ALL_TABS.filter(([k]) => k !== "listening" || (S.listening && S.listening.questions && S.listening.questions.length));
 function render(){
   closePalette(false);
@@ -537,7 +553,7 @@ function render(){
   $("#resetNo").onclick = () => { $("#resetAsk").hidden = true; $("#reset").hidden = false; };
   $("#resetYes").onclick = () => {
     try { sessionStorage.removeItem(STORE); } catch(e) {}
-    st = {mode:"3", role:null, tab:"context", choices:{}, firstLook:{}, mcq:{}, decisions:{}, however:{}, memo:"", consent:false, notes:"", hl:{}, hlLabels:{}, hlGroup:"colour"};
+    st = {mode:"3", role:null, tab:"context", choices:{}, firstLook:{}, mcq:{}, decisions:{}, however:{}, memo:"", consent:false, notes:"", hl:{}, hlLabels:{}, hlGroup:"colour", budget:{}, rationale:""};
     pendingPick = {}; render(); window.scrollTo(0,0);
   };
   ({context:tabContext, firstlook:tabFirstLook, listening:tabListening, inbox:tabInbox, decisions:tabDecisions, submit:tabSubmit})[st.tab]();
@@ -558,6 +574,7 @@ function tabContext(){
 }
 
 function tabFirstLook(){
+  if (B) return tabFirstLookBudget();
   $("#main").innerHTML = `
     <p>Before you read anything else, go with your gut. Nobody sees these answers — they're for ${pair() ? "talking with your partner" : "your group discussion"}.</p>
     ${S.decisions.map(d => `
@@ -567,6 +584,18 @@ function tabFirstLook(){
       </div>`).join("")}
     <p><b>Discuss:</b> Where do you disagree? Which decision feels hardest right now, and why?</p>`;
   $("#main").onchange = e => { const [, id] = e.target.name.split("_"); st.firstLook[id] = e.target.value; save(); };
+}
+
+function tabFirstLookBudget(){
+  const opts = ["More than typical", "About the same", "Cut it", "Unsure"];
+  $("#main").innerHTML = `
+    <p>Before you read anything else, go with your gut: how much of the ${money(B.target)} should go to each area? Nobody sees these answers — they're for ${pair() ? "talking with your partner" : "your group discussion"}.</p>
+    ${(B.first_look || []).map(c => `
+      <div class="dec"><h3>${esc(c.label)}</h3>
+        ${opts.map(o => `<label class="opt"><input type="radio" name="fl_${c.id}" value="${o}" ${st.firstLook[c.id]===o?"checked":""}><span>${o === "Unsure" ? "<i>Not sure yet</i>" : esc(o)}</span></label>`).join("")}
+      </div>`).join("")}
+    <p><b>Discuss:</b> Where do you disagree? Which area feels hardest to call right now, and why?</p>`;
+  $("#main").onchange = e => { const id = e.target.name.slice(3); st.firstLook[id] = e.target.value; save(); };
 }
 
 function listeningAnswers(){
@@ -650,7 +679,39 @@ function rerenderMail(c){
 }
 function updateDot(){ const pending = role().characters.filter(c => !st.choices[c.id]).length; const t = document.querySelector('.tab[data-tab="inbox"] .dot'); if (t && !pending) t.remove(); }
 
+function tabBudget(){
+  const flash = () => !S.newsflash ? "" : budgetOK()
+    ? `<div class="flash"><b>Breaking news</b><div class="prose">${esc(unscramble(S.newsflash, `${S.salt}|newsflash`)).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}</div>
+       <p class="small" style="margin-bottom:0">Does this change anything? You can still adjust your numbers above — keep the total within ${money(B.tolerance)} of ${money(B.target)}.</p></div>`
+    : `<p class="muted small">When your total is within ${money(B.tolerance)} of ${money(B.target)}, some breaking news will appear here.</p>`;
+  const totalHTML = () => { const tot = budgetTotal(), d = tot - B.target, ok = Math.abs(d) <= B.tolerance;
+    return `<span>Total: ${money(tot)}</span><span class="${ok ? "on" : "off"}">${ok ? "✓ on target" : (d > 0 ? money(d) + " over" : money(-d) + " under")} (target ${money(B.target)})</span>`; };
+  $("#main").innerHTML = `
+    <p>Agree how to split the <b>${money(B.target)}</b> ${pair() ? "together" : "as a group"}, then ${pair() ? "both of you enter" : "everyone enters"} the same numbers here. The total has to land within ${money(B.tolerance)} of the target.</p>
+    <div class="bud">${B.items.map(it => `<div class="row">
+        <label for="b_${it.id}"><span class="l">${esc(it.label)}</span><br><span class="u">${money(it.unit_cost)} per ${esc(it.unit || "unit")} · up to ${it.max}</span></label>
+        <input id="b_${it.id}" data-b="${it.id}" type="number" inputmode="numeric" min="0" max="${it.max}" step="1" value="${budgetVal(it.id) || ""}" placeholder="0">
+        <span class="sub" id="bs_${it.id}">${budgetVal(it.id) ? money(budgetVal(it.id) * it.unit_cost) : ""}</span></div>`).join("")}</div>
+    <div class="total" id="btotal" aria-live="polite">${totalHTML()}</div>
+    <label class="small muted" for="rationale" style="display:block;margin-top:14px">Our reasoning (the main trade-off, and the biggest risk of this split)</label>
+    <textarea id="rationale" style="width:100%;min-height:90px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px">${esc(st.rationale || "")}</textarea>
+    <div id="bflash">${flash()}</div>`;
+  let wasOK = budgetOK();
+  $("#main").oninput = e => {
+    const id = e.target.dataset.b;
+    if (id) {
+      const it = B.items.find(x => x.id === id);
+      let v = parseInt(e.target.value, 10); if (isNaN(v) || v < 0) v = 0; if (v > it.max) { v = it.max; e.target.value = v; }
+      st.budget = st.budget || {}; st.budget[id] = v; save();
+      $("#bs_" + id).textContent = v ? money(v * it.unit_cost) : "";
+      $("#btotal").innerHTML = totalHTML();
+      if (budgetOK() !== wasOK) { wasOK = budgetOK(); $("#bflash").innerHTML = flash(); }
+    } else if (e.target.id === "rationale") { st.rationale = e.target.value; save(); }
+  };
+}
+
 function tabDecisions(){
+  if (B) return tabBudget();
   const all = S.decisions.every(d => st.decisions[d.id]);
   $("#main").innerHTML = `
     <p>Agree the ${num(S.decisions.length)} decisions <b>${pair() ? "together" : "as a group"}</b>, then ${pair() ? "both of you enter" : "everyone enters"} the same answers here. For each one, note the biggest risk or objection — you'll need it in your writing.</p>
@@ -702,15 +763,17 @@ function makeSubmission(){
   const missing = [];
   const openChars = r.characters.filter(c => !st.choices[c.id]);
   if (openChars.length) missing.push(`You haven't chosen what to ask ${openChars.map(c => c.name).join(", ")} yet (Inbox).`);
-  const openDec = S.decisions.filter(d => !st.decisions[d.id]);
-  if (openDec.length) missing.push(`Your group's answer is missing for ${openDec.map(d => d.title.split(" — ")[0]).join(", ")} (Decisions).`);
+  const openDec = B ? (budgetOK() ? [] : ["budget"]) : S.decisions.filter(d => !st.decisions[d.id]);
+  if (openDec.length) missing.push(B ? `Your group's budget isn't within ${money(B.tolerance)} of ${money(B.target)} yet (Budget).`
+                                      : `Your group's answer is missing for ${openDec.map(d => d.title.split(" — ")[0]).join(", ")} (Decisions).`);
   if (words(st.memo) < 50) missing.push("Your text is very short — write your " + W.label + " first.");
   $("#issues").innerHTML = missing.map(m => `<p>${esc(m)}</p>`).join("");
   if (openDec.length || words(st.memo) < 50) { $("#out").innerHTML = ""; return; }
 
   const ai = st.consent ? "yes" : "no";
   const choices = r.characters.map(c => `${c.id}=${st.choices[c.id] || "-"}`).join(", ");
-  const decisions = S.decisions.map(d => `${d.id}=${st.decisions[d.id]}`).join(", ");
+  const decisions = B ? B.items.map(it => `${it.id}=${budgetVal(it.id)}`).join(", ")
+                      : S.decisions.map(d => `${d.id}=${st.decisions[d.id]}`).join(", ");
   const memoText = st.memo.trim();
   const code = checkCode([S.id, S.version, r.id, choices, decisions, ai, ai === "yes" ? norm(memoText) : ""]);
   const head = [
